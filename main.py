@@ -17,7 +17,6 @@ Cilvēks = [
     [["create_line"], [400, 300, 450, 350]],
     [["create_line"], [400, 300, 350, 350]],
 ]
-
 Spoks = [
     [["create_line"], [550, 100, 550, 420]],
     [["create_line"], [500, 100, 550, 150]],
@@ -30,8 +29,6 @@ Spoks = [
     [["create_oval"], [410, 180, 450, 240]],
     [["create_line"], [380, 260, 420, 260]],
 ]
-
-
 Nāve = [
     [["create_line"],[550, 100, 550, 420]], 
     [["create_line"], [500, 100, 550, 150]], 
@@ -48,8 +45,8 @@ Nāve = [
 '''
 =======Vārda iegūšana========
 '''
-
-vārdi = ["atkals","ābols","žāvāties"]
+with open("vārdi.txt","r", encoding="utf-8") as f:
+    vārdi = [rinda.strip() for rinda in f]
 
 def jauns_vārds(vārdi):
     return vārdi[randint(0,len(vārdi)-1)]
