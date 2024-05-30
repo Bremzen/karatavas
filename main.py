@@ -52,6 +52,10 @@ with open("vārdi.txt","r", encoding="utf-8") as f:
 def jauns_vārds(vārdi):
     return vārdi[randint(0,len(vārdi)-1)]
 
+'''
+=======Jauna spēle========
+'''
+
 def jauna_spēle():
     global vārds, char, kļūdas, pieļaujamais_kļūdu_skaits, minētie_burti
     vārds = jauns_vārds(vārdi)
@@ -60,7 +64,10 @@ def jauna_spēle():
     kļūdas = 0
     pieļaujamais_kļūdu_skaits = 10
     minētie_burti = ''
-    Char.dzēst_parādītās_detaļas()
+    Char.dzēst_parādītās_detaļas() #nodzēš iepriekšējo mošķi
+    #noņem sākuma ekrānu
+    ekrans.delete(nosaukums)
+    poga.destroy()
 
 
 '''
@@ -68,7 +75,7 @@ def jauna_spēle():
 '''
 
 root = Tk()
-root.title('Spēle')
+root.title('Karātavas')
 ekrans = Canvas(root, width=600, height=500)
 ekrans.pack()
 x,y = 600,500
@@ -76,9 +83,9 @@ x,y = 600,500
 '''
 =======Sākuma ekrāns========
 '''
-nosaukums = ekrans.create_text(280, 100, text="Karātavas", fill="black", font=("Helvetica", 30))
+nosaukums = ekrans.create_text(x/2, 150, anchor="center", text="Karātavas", fill="black", font=("Helvetica", 30))
 poga = Button(ekrans, text='Spēlēt',command=jauna_spēle)
-poga.place(x=x/2,y=y/2)
+poga.place(x=x/2,y=y/2, anchor="center", height='30',width='150')
 
 '''
 =======Zīmējuma daļu rādīšana========
@@ -134,8 +141,8 @@ def minēt():
         Char.parādīt_detaļu()
         print("Kļūdu skaits:",kļūdas,char)
         if kļūdas == pieļaujamais_kļūdu_skaits:
+            ekrans.after(1000)
             #piesaista funkciju, kas displejo zaudes ekrānu
-            time.sleep(1)
             print("losis")
             pass
 
