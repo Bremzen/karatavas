@@ -1,5 +1,6 @@
 from tkinter import *
 from random import randint
+import time
 
 '''
 =======Spēles mošķi========
@@ -51,15 +52,37 @@ with open("vārdi.txt","r", encoding="utf-8") as f:
 def jauns_vārds(vārdi):
     return vārdi[randint(0,len(vārdi)-1)]
 
+def jauna_spēle():
+    global vārds, char, kļūdas, pieļaujamais_kļūdu_skaits, minētie_burti
+    vārds = jauns_vārds(vārdi)
+    print(vārds)#priekš testēšanas
+    char = ''
+    kļūdas = 0
+    pieļaujamais_kļūdu_skaits = 10
+    minētie_burti = ''
+    Char.dzēst_parādītās_detaļas()
+
+
 '''
-=======GUI izveide========
+=======GUI izveide=================================
 '''
 
 root = Tk()
+root.title('Spēle')
 ekrans = Canvas(root, width=600, height=500)
 ekrans.pack()
+x,y = 600,500
 
-ekrans.create_text(280, 100, text="Karātavas", fill="black", font=("Helvetica", 30))
+'''
+=======Sākuma ekrāns========
+'''
+nosaukums = ekrans.create_text(280, 100, text="Karātavas", fill="black", font=("Helvetica", 30))
+poga = Button(ekrans, text='Spēlēt',command=jauna_spēle)
+poga.place(x=x/2,y=y/2)
+
+'''
+=======Zīmējuma daļu rādīšana========
+'''
 
 class KarātavasDaļas:
     def __init__(self,detaļas):
@@ -67,57 +90,59 @@ class KarātavasDaļas:
         self.skaits = 0
 
     def parādīt_detaļu(self):
-        command = getattr(ekrans, self.detaļas[self.skaits][0][0])
-        command(*self.detaļas[self.skaits][1])
-        self.skaits+=1
+        command_name = self.detaļas[self.skaits][0][0]
+        command_args = self.detaļas[self.skaits][1]
+        command = getattr(ekrans, command_name)
+        var_name = f'var_{self.skaits}'
+        globals()[var_name] = command(*command_args)
+        self.skaits += 1
+    
+    def dzēst_parādītās_detaļas(self):
+        for i in range(self.skaits):
+            var_name = f'var_{i}'
+            if var_name in globals():
+                ekrans.delete(globals()[var_name])
+        self.skaits = 0
+        
 
-Char = KarātavasDaļas(Nāve)
+Char = KarātavasDaļas(Spoks)
 
+
+'''
+=======Spēles loģiskā daļa========
+'''
 def pogas_spiediens(event):
     global char
     char = event.char.lower()
-    if char.isalpha():
+    if char.isalpha() and kļūdas < pieļaujamais_kļūdu_skaits:
         minēt()
-        #print("Pressed", repr(char))
+
+def minēt():
+    global char, vārds, kļūdas, minētie_burti
+    if char in vārds:
+        print("cepums tev")
+        vārds = izdzēst_char(vārds,char)
+        minētie_burti += char
+        print(vārds)
+        if vārds == '':
+            print("woow, malacītis!")
+    elif char in minētie_burti:
+        print("dunduk,",char,"burts jau minēts")
+    else:
+        minētie_burti+=char
+        kļūdas+=1
+        Char.parādīt_detaļu()
+        print("Kļūdu skaits:",kļūdas,char)
+        if kļūdas == pieļaujamais_kļūdu_skaits:
+            #piesaista funkciju, kas displejo zaudes ekrānu
+            time.sleep(1)
+            print("losis")
+            pass
 
 def izdzēst_char(word, char):
     return word.replace(char, '')
 
-'''
-=======Tastatūras pogu noteikšana========
-'''
-def minēt():
-    global char, vārds, kļūdas, atminētie_burti
-    if char in vārds:
-        print("cepums tev")
-        vārds = izdzēst_char(vārds,char)
-        atminētie_burti += char
-        print(vārds)
-        if vārds == '':
-            print("woow, malacītis!")
-    elif char in atminētie_burti:
-        print("dunduk,",char,"burts jau minēts")
-    else:
-        atminētie_burti+=char
-        kļūdas+=1
-        Char.parādīt_detaļu()
-        print("ahahah tu alkāns. Kļūdu skaits:",kļūdas)
-        if kļūdas > pieļaujamais_kļūdu_skaits:
-            #piesaista funkciju, kas displejo zaudes ekrānu
-            print("losis")
-            pass
-
 
 root.bind("<Key>", pogas_spiediens)
-
-
-
-#lietas, kuras būs jāatjauno, kad izveido jaunu spēli. NOT FINISHED (nav pat funkcijas lol)
-vārds = jauns_vārds(vārdi)
-print(vārds)#priekš testēšanas
-char = ''
-kļūdas = 0
-pieļaujamais_kļūdu_skaits = 10
-atminētie_burti = ''
 
 root.mainloop()
