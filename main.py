@@ -59,6 +59,7 @@ def jauns_vārds(vārdi):
 def jauna_spēle():
     global vārds, char, kļūdas, pieļaujamais_kļūdu_skaits, minētie_burti
     vārds = jauns_vārds(vārdi)
+    vārds2 = vārds
     print(vārds)#priekš testēšanas
     char = ''
     kļūdas = 0
@@ -68,6 +69,7 @@ def jauna_spēle():
     #noņem sākuma ekrānu
     ekrans.delete(nosaukums)
     poga.destroy()
+    galvenais_gui()
 
 
 '''
@@ -79,6 +81,15 @@ root.title('Karātavas')
 ekrans = Canvas(root, width=600, height=500)
 ekrans.pack()
 x,y = 600,500
+def galvenais_gui():
+    global minējuma_burts, minējuma_teksts
+    minējuma_teksts = ekrans.create_text(10,200, text='Tavs minētais burts: ', font=("Times New Roman", 20), anchor="w")
+    minējuma_burts = ekrans.create_text(230,200, text=char, font=("Times New Roman", 20), anchor="w")
+
+def zaudēšanas_gui():
+    Char.dzēst_parādītās_detaļas()
+    ekrans.delete(minējuma_burts,minējuma_teksts)
+    zaudes_teksts = ekrans.create_text(x/2, 150, anchor="center", text="Tu zaudēji!", fill="black", font=("Helvetica", 30))
 
 '''
 =======Sākuma ekrāns========
@@ -119,10 +130,11 @@ Char = KarātavasDaļas(Spoks)
 =======Spēles loģiskā daļa========
 '''
 def pogas_spiediens(event):
-    global char
+    global char, minējuma_burts
     char = event.char.lower()
     if char.isalpha() and kļūdas < pieļaujamais_kļūdu_skaits:
         minēt()
+        ekrans.itemconfig(minējuma_burts, text=char)
 
 def minēt():
     global char, vārds, kļūdas, minētie_burti
@@ -141,9 +153,9 @@ def minēt():
         Char.parādīt_detaļu()
         print("Kļūdu skaits:",kļūdas,char)
         if kļūdas == pieļaujamais_kļūdu_skaits:
-            ekrans.after(1000)
-            #piesaista funkciju, kas displejo zaudes ekrānu
             print("losis")
+            ekrans.after(1000)
+            zaudēšanas_gui()
             pass
 
 def izdzēst_char(word, char):
