@@ -57,7 +57,7 @@ def jauns_vārds(vārdi):
 '''
 
 def jauna_spēle():
-    global vārds, char, kļūdas, pieļaujamais_kļūdu_skaits, minētie_burti
+    global vārds, char, kļūdas, pieļaujamais_kļūdu_skaits, minētie_burti, vārds2
     vārds = jauns_vārds(vārdi)
     vārds2 = vārds
     print(vārds)#priekš testēšanas
@@ -65,12 +65,18 @@ def jauna_spēle():
     kļūdas = 0
     pieļaujamais_kļūdu_skaits = 10
     minētie_burti = ''
+    dzēst_minēšanas_vārda_gui()
     Char.dzēst_parādītās_detaļas() #nodzēš iepriekšējo mošķi
     #noņem sākuma ekrānu
     ekrans.delete(nosaukums)
     poga.destroy()
     galvenais_gui()
 
+def pirms_jauna_spēle():
+    ekrans.delete(zaudes_teksts)
+    pogaZaude.place_forget()
+    dzēst_minēšanas_burta_gui()
+    jauna_spēle()
 
 '''
 =======GUI izveide=================================
@@ -85,17 +91,47 @@ def galvenais_gui():
     global minējuma_burts, minējuma_teksts
     minējuma_teksts = ekrans.create_text(10,200, text='Tavs minētais burts: ', font=("Times New Roman", 20), anchor="w")
     minējuma_burts = ekrans.create_text(230,200, text=char, font=("Times New Roman", 20), anchor="w")
+    minēšanas_vārda_gui()
+
+def minēšanas_vārda_gui():
+    for i in range(len(vārds2)):
+        var_name = f'varline_{i}'
+        globals()[var_name] = ekrans.create_line(30+i*40,250,50+i*40,250)
+
+def minēšanas_burta_gui():
+    global vārds2
+    while char in vārds2:
+         i = vārds2.index(char)
+         print(i)
+         var_name = f'varlet_{i}'
+         globals()[var_name] = ekrans.create_text(40 + i * 40, 240, text=char.upper(), font=("Times New Roman", 20))
+         vārds2 = vārds2[:i] + '0' + vārds2[i+1:]
+            
+
+def dzēst_minēšanas_vārda_gui():
+    for i in range(len(vārds2)):
+        var_name = f'varline_{i}'
+        if var_name in globals():
+            ekrans.delete(globals()[var_name])
+
+def dzēst_minēšanas_burta_gui():
+    for i in range(len(vārds2)):
+        var_name = f'varlet_{i}'
+        if var_name in globals():
+            ekrans.delete(globals()[var_name])
 
 def zaudēšanas_gui():
-    Char.dzēst_parādītās_detaļas()
+    global zaudes_teksts
     ekrans.delete(minējuma_burts,minējuma_teksts)
-    zaudes_teksts = ekrans.create_text(x/2, 150, anchor="center", text="Tu zaudēji!", fill="black", font=("Helvetica", 30))
+    zaudes_teksts = ekrans.create_text(80, 150, anchor='w', text="Tu zaudēji!", fill="black", font=("Helvetica", 30))
+    pogaZaude.place(x=x/2,y=y/2, anchor="center", height='30',width='150')
 
 '''
-=======Sākuma ekrāns========
+=======Sākuma ekrāns, pogas========
 '''
 nosaukums = ekrans.create_text(x/2, 150, anchor="center", text="Karātavas", fill="black", font=("Helvetica", 30))
 poga = Button(ekrans, text='Spēlēt',command=jauna_spēle)
+pogaZaude = Button(ekrans,text='Spēlēt atkal?',command=pirms_jauna_spēle)
 poga.place(x=x/2,y=y/2, anchor="center", height='30',width='150')
 
 '''
@@ -143,6 +179,7 @@ def minēt():
         vārds = izdzēst_char(vārds,char)
         minētie_burti += char
         print(vārds)
+        minēšanas_burta_gui()
         if vārds == '':
             print("woow, malacītis!")
     elif char in minētie_burti:
